@@ -32,17 +32,32 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew shadowJar
 
+      - name: Check `metadata.json`
+        run: cat metadata.json  # Debugging step to verify the file
+
       - name: Deploy to AWS Lambda
         run: |
+          if [ ! -f metadata.json ]; then
+                  echo "Error: metadata.json not found!"
+                  exit 1
+          fi
+                
           for lambda in $(jq -r '.lambdas[].name' metadata.json); do
             echo "Deploying $lambda..."
+                
             path=$(jq -r --arg lambda "$lambda" '.lambdas[] | select(.name==$lambda) | .path' metadata.json)
-
+                
+            if [ ! -f "$path" ]; then
+              echo "Error: Lambda JAR not found at $path"
+              exit 1
+            fi
+                
             aws lambda update-function-code \
-              --function-name $lambda \
-              --zip-file fileb://$path \
-              --region $AWS_REGION
+              --function-name "$lambda" \
+              --zip-file "fileb://$path" \
+              --region "$AWS_REGION"
           done
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1
