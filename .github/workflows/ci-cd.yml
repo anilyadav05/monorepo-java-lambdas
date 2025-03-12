@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AWS_REGION: us-west-2  # Change this if needed
+      AWS_REGION: us-west-2
 
     steps:
       - name: Checkout Repository
@@ -33,7 +33,7 @@ jobs:
         run: ./gradlew shadowJar
 
       - name: Check `metadata.json`
-        run: cat metadata.json  # Debugging step to verify the file
+        run: cat metadata.json
 
       - name: Deploy to AWS Lambda
         run: |
@@ -62,7 +62,7 @@ jobs:
                   aws lambda create-function \
                       --function-name "$lambda" \
                       --runtime java17 \
-                      --role arn:aws:iam::741448945841:role/lambda-execution-role \ # Update this IAM Role ARN
+                      --role arn:aws:iam::741448945841:role/lambda-execution-role \ 
                       --handler "$handler" \
                       --zip-file fileb://$path \
                       --region "$AWS_REGION"
