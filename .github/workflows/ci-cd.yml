@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AWS_REGION: us-east-1
+      AWS_REGION: us-west-2
 
     steps:
       - name: Checkout Repository
@@ -24,7 +24,10 @@ jobs:
           cache: gradle
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permissions to Gradle wrapper
+        run: chmod +x gradlew
 
       - name: Build with Gradle
         run: ./gradlew shadowJar
