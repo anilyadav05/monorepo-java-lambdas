@@ -1,0 +1,12 @@
+{
+  "lambdas": [
+    {
+      "name": "sqs-consumer",
+      "path": "lambdas/sqs-consumer/build/libs/sqs-consumer.jar"
+    },
+    {
+      "name": "event-processor",
+      "path": "lambdas/event-processor/build/libs/event-processor.jar"
+    }
+  ]
+}

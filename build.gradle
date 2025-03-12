@@ -1,44 +1,36 @@
 plugins {
-    id 'java-library'
-    id 'io.spring.dependency-management' version '1.1.0' apply false
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 allprojects {
-    group = 'com.mycompany'
-    version = '1.0.0-SNAPSHOT'
-
     repositories {
         mavenCentral()
     }
 }
 
 subprojects {
-    apply plugin: 'java-library'
-    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'java'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    group = 'com.example'
+    version = '1.0.0'
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    dependencyManagement {
-        imports {
-            mavenBom 'com.amazonaws:aws-java-sdk-bom:1.12.429'
-            mavenBom 'software.amazon.awssdk:bom:2.20.56'
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(17))
         }
     }
 
     dependencies {
-        implementation 'org.slf4j:slf4j-api:2.0.7'
-        implementation 'ch.qos.logback:logback-classic:1.4.7'
-        implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0'
-
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
-        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
-        testImplementation 'org.mockito:mockito-junit-jupiter:5.3.1'
+        implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
+        implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
     }
 
-    test {
-        useJUnitPlatform()
+    tasks.withType(Jar).configureEach {
+        manifest {
+            attributes 'Implementation-Title': project.name,
+                    'Implementation-Version': version
+        }
     }
 }
