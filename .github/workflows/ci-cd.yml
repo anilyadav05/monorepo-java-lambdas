@@ -62,7 +62,7 @@ jobs:
                   aws lambda create-function \
                       --function-name "$lambda" \
                       --runtime java17 \
-                      --role arn:aws:iam::741448945841:role/lambda-execution-role \ 
+                      --role arn:aws:iam::741448945841:role/lambda-execution-role \
                       --handler "$handler" \
                       --zip-file fileb://$path \
                       --region "$AWS_REGION"
