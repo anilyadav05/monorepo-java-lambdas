@@ -18,6 +18,8 @@ java {
     }
 }
 
-tasks.withType(Jar).configureEach {
-    archiveBaseName.set('event-processor')
+tasks.named('shadowJar') {
+    archiveBaseName.set("event-processor")  // Ensure output is "event-processor.jar"
+    archiveVersion.set("")
+    archiveClassifier.set("")
 }

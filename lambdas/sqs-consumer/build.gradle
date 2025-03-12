@@ -18,6 +18,8 @@ java {
     }
 }
 
-tasks.withType(Jar).configureEach {
-    archiveBaseName.set('sqs-consumer')
+tasks.named('shadowJar') {
+    archiveBaseName.set("sqs-consumer")  // Ensure output is "sqs-consumer.jar"
+    archiveVersion.set("")  // Remove version from filename
+    archiveClassifier.set("")  // Remove "-all" classifier
 }
