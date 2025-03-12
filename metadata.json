@@ -2,11 +2,13 @@
   "lambdas": [
     {
       "name": "sqs-consumer",
-      "path": "lambdas/sqs-consumer/build/libs/sqs-consumer.jar"
+      "path": "lambdas/sqs-consumer/build/libs/sqs-consumer.jar",
+      "handler": "com.example.SqsConsumer"
     },
     {
       "name": "event-processor",
-      "path": "lambdas/event-processor/build/libs/event-processor.jar"
+      "path": "lambdas/event-processor/build/libs/event-processor.jar",
+      "handler": "com.example.EventProcessor"
     }
   ]
 }

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AWS_REGION: us-west-2
+      AWS_REGION: us-west-2  # Change this if needed
 
     steps:
       - name: Checkout Repository
@@ -38,26 +38,44 @@ jobs:
       - name: Deploy to AWS Lambda
         run: |
           if [ ! -f metadata.json ]; then
-                  echo "Error: metadata.json not found!"
-                  exit 1
-          fi
-                
-          for lambda in $(jq -r '.lambdas[].name' metadata.json); do
-            echo "Deploying $lambda..."
-                
-            path=$(jq -r --arg lambda "$lambda" '.lambdas[] | select(.name==$lambda) | .path' metadata.json)
-                
-            if [ ! -f "$path" ]; then
-              echo "Error: Lambda JAR not found at $path"
+              echo "❌ Error: metadata.json not found!"
               exit 1
-            fi
-                
-            aws lambda update-function-code \
-              --function-name "$lambda" \
-              --zip-file "fileb://$path" \
-              --region "$AWS_REGION"
+          fi
+
+          for lambda in $(jq -r '.lambdas[].name' metadata.json); do
+              echo "🚀 Deploying $lambda..."
+
+              path=$(jq -r --arg lambda "$lambda" '.lambdas[] | select(.name==$lambda) | .path' metadata.json)
+              handler=$(jq -r --arg lambda "$lambda" '.lambdas[] | select(.name==$lambda) | .handler' metadata.json)
+
+              if [ ! -f "$path" ]; then
+                  echo "❌ Error: Lambda JAR not found at $path"
+                  exit 1
+              fi
+
+              # Check if the Lambda function exists in AWS
+              EXISTS=$(aws lambda get-function --function-name "$lambda" --region "$AWS_REGION" 2>&1 || true)
+
+              if [[ "$EXISTS" == *"ResourceNotFoundException"* ]]; then
+                  echo "🚀 Creating new Lambda function: $lambda with handler $handler"
+
+                  aws lambda create-function \
+                      --function-name "$lambda" \
+                      --runtime java17 \
+                      --role arn:aws:iam::741448945841:role/lambda-execution-role \ # Update this IAM Role ARN
+                      --handler "$handler" \
+                      --zip-file fileb://$path \
+                      --region "$AWS_REGION"
+              else
+                  echo "🔄 Updating existing Lambda function: $lambda"
+          
+                  aws lambda update-function-code \
+                      --function-name "$lambda" \
+                      --zip-file fileb://$path \
+                      --region "$AWS_REGION"
+              fi
           done
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-2
+          AWS_REGION: us-west-2
